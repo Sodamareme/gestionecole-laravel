@@ -1,0 +1,289 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API Users & Referentiels",
+      "version": "1.0.0"
+    },
+    "paths": {
+      "/v1/users": {
+        "post": {
+          "tags": ["Users"],
+          "summary": "Ajout d'un utilisateur",
+          "operationId": "storeUser",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Utilisateur créé avec succès"
+            },
+            "400": {
+              "description": "Erreur dans les données"
+            }
+          }
+        },
+        "get": {
+          "tags": ["Users"],
+          "summary": "Lister les utilisateurs",
+          "operationId": "listUsers",
+          "responses": {
+            "200": {
+              "description": "Liste des utilisateurs"
+            }
+          }
+        }
+      },
+      "/v1/users/{id}": {
+        "get": {
+          "tags": ["Users"],
+          "summary": "Recherche utilisateur par ID",
+          "operationId": "getUserById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Utilisateur trouvé"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          }
+        },
+        "patch": {
+          "tags": ["Users"],
+          "summary": "Mise à jour utilisateur",
+          "operationId": "updateUser",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Utilisateur mis à jour"
+            }
+          }
+        }
+      },
+      "/v1/Auth/login": {
+        "post": {
+          "tags": ["Auth"],
+          "summary": "Connexion utilisateur",
+          "operationId": "login",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Login"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Connexion réussie"
+            },
+            "401": {
+              "description": "Identifiants invalides"
+            }
+          }
+        }
+      },
+      "/v1/referentiels": {
+        "post": {
+          "tags": ["Referentiels"],
+          "summary": "Ajout d'un référentiel",
+          "operationId": "storeReferentiel",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Referentiel"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Référentiel créé avec succès"
+            }
+          }
+        },
+        "get": {
+          "tags": ["Referentiels"],
+          "summary": "Lister les référentiels actifs",
+          "operationId": "getActiveReferentiels",
+          "responses": {
+            "200": {
+              "description": "Liste des référentiels actifs"
+            }
+          }
+        }
+      },
+      "/v1/referentielsStatut": {
+        "post": {
+          "tags": ["Referentiels"],
+          "summary": "Lister les référentiels par statut",
+          "operationId": "getReferentielsByStatus",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Statut du référentiel (Actif, Inactif, Archivé)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Liste des référentiels par statut"
+            }
+          }
+        }
+      },
+      "/v1/referentielsAll": {
+        "get": {
+          "tags": ["Referentiels"],
+          "summary": "Lister tous les référentiels",
+          "operationId": "getAllReferentiels",
+          "responses": {
+            "200": {
+              "description": "Liste de tous les référentiels"
+            }
+          }
+        }
+      },
+      "/v1/referentiels/{id}": {
+        "get": {
+          "tags": ["Referentiels"],
+          "summary": "Filtrer par compétences et modules",
+          "operationId": "getReferentielById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Liste des compétences et modules"
+            }
+          }
+        }
+      },
+      "/users/export/excel": {
+        "get": {
+          "tags": ["Users"],
+          "summary": "Exporter les utilisateurs en Excel",
+          "operationId": "exportExcel",
+          "responses": {
+            "200": {
+              "description": "Fichier Excel exporté"
+            }
+          }
+        }
+      },
+      "/users/export/pdf": {
+        "get": {
+          "tags": ["Users"],
+          "summary": "Exporter les utilisateurs en PDF",
+          "operationId": "exportPDF",
+          "responses": {
+            "200": {
+              "description": "Fichier PDF exporté"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "User": {
+          "type": "object",
+          "properties": {
+            "nom": {
+              "type": "string"
+            },
+            "prenom": {
+              "type": "string"
+            },
+            "login": {
+              "type": "string"
+            },
+            "mot_de_passe": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            }
+          }
+        },
+        "Login": {
+          "type": "object",
+          "properties": {
+            "login": {
+              "type": "string"
+            },
+            "mot_de_passe": {
+              "type": "string"
+            }
+          }
+        },
+        "Referentiel": {
+          "type": "object",
+          "properties": {
+            "nom": {
+              "type": "string"
+            },
+            "statut": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+  
