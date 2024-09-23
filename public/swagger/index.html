@@ -16,21 +16,21 @@
     <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
     <script>
       window.onload = function () {
-          // Configuration de Swagger UI
-          const ui = SwaggerUIBundle({
-              url: "/swagger.json", // Chemin vers votre fichier swagger.json
-              dom_id: "#swagger-ui",
-              deepLinking: true,
-              presets: [
-                  SwaggerUIBundle.presets.apis,
-                  SwaggerUIStandalonePreset,
-              ],
-              plugins: [SwaggerUIBundle.plugins.DownloadUrl],
-              layout: "StandaloneLayout",
-          });
-
-          window.ui = ui;
+      // Configuration de Swagger UI
+      const ui = SwaggerUIBundle({
+      url: "/swagger.json", // Chemin vers votre fichier swagger.json
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      presets: [
+      SwaggerUIBundle.presets.apis,
+      SwaggerUIStandalonePreset,
+      ],
+      plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+      layout: "StandaloneLayout",
+      });
+      
+      window.ui = ui;
       };
-  </script>
+      </script>
   </body>
 </html>

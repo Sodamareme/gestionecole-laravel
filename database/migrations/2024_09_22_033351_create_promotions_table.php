@@ -17,8 +17,6 @@ class CreatePromotionsTable extends Migration
             $table->enum('etat', ['Actif', 'Cloturé', 'Inactif']);
             $table->string('photo')->nullable();
             $table->foreignId('referentiel_id')->constrained('referentiels')->onDelete('cascade');
-            $table->string('referentiel_id')->nullable(); // Changez le type en string si nécessaire
-
             $table->timestamps();
         });
     }

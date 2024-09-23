@@ -5,6 +5,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Services\AuthenticationServiceInterface;
 use App\Services\AuthentificationPassport;
 use App\Services\AuthentificationSanctum;
+
 class AuthCustomServiceProvider extends ServiceProvider
 {
     public function register()

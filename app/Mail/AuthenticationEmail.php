@@ -1,45 +1,43 @@
 <?php
-
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 class AuthenticationEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $user;
-    public $password;
+    protected $user;
+    protected $password;
+    protected $qrCode;
 
-    /**
-     * Create a new message instance.
-     *
-     * @param  object  $user  L'utilisateur avec les informations nécessaires
-     * @param  string  $password  Le mot de passe de l'utilisateur
-     * @return void
-     */
-    public function __construct($user, $password)
+    public function __construct($user, $password, $qrCode)
     {
-        // Assurez-vous que $user est un objet avec les propriétés requises
         $this->user = $user;
         $this->password = $password;
+        $this->qrCode = $qrCode; // Assigner correctement la variable QR Code
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
-        return $this->markdown('emails.auth')
-                    ->subject('Informations de Connexion')
-                    ->with([
-                        'email' => $this->user->email, // Assurez-vous que la propriété existe
-                        'matricule' => $this->user->matricule, // Assurez-vous que la propriété existe
-                        'password' => $this->password,
-                    ]);
+        $qrCode = $this->qrCode; // Utilisation du QR Code fourni
+    
+        // Générer le PDF avec la vue correspondante
+        $pdf = PDF::loadView('pdfs.qr_code', [
+            'user' => $this->user,
+            'qrCode' => $qrCode,
+        ]);
+    
+        return $this->view('emails.authentication')
+            ->with([
+                'user' => $this->user,
+                'password' => $this->password,
+            ])
+            ->attachData($pdf->output(), 'qr_code.pdf', [
+                'mime' => 'application/pdf',
+            ]);
     }
 }

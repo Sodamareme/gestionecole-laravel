@@ -197,6 +197,8 @@ return [
         Kreait\Laravel\Firebase\ServiceProvider::class,
         App\Providers\FirebaseServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
+
 
 
     ],

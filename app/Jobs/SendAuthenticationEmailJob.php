@@ -1,57 +1,72 @@
 <?php
-
 namespace App\Jobs;
 
+use App\Mail\AuthenticationEmail; // Créez ce mailable
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Mail; 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\AuthenticationEmail;
 use Illuminate\Support\Facades\Log;
-use Kreait\Firebase\Factory; // Importez la classe Firebase
+use Dompdf\Dompdf;
 
 class SendAuthenticationEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $userId; // Stocker l'ID de l'utilisateur
+    protected $user;
     protected $password;
+    protected $qrCode;
 
-    public function __construct($userId, $password)
+    public function __construct($user, $password, $qrCode)
     {
-        $this->userId = $userId; // Enregistrez l'ID de l'utilisateur
+        $this->user = $user;
         $this->password = $password;
+        $this->qrCode = $qrCode;
     }
 
     public function handle()
     {
-        try {
-            $firebase = (new Factory)
-                ->withServiceAccount(config('firebase.credentials'))
-                ->withDatabaseUri(config('firebase.database_url'));
+        $email = $this->user->email;
+        $password = $this->password;
     
-            $database = $firebase->createDatabase();
-            $userData = $database->getReference('users/' . $this->userId)->getValue();
-    
-            Log::info('Données utilisateur récupérées : ', ['userData' => $userData]);
-    
-            // Assurez-vous que les données utilisateur sont disponibles
-            if (is_null($userData) || !isset($userData['email'])) {
-                Log::error('Utilisateur non trouvé pour l\'ID : ' . $this->userId);
-                throw new \Exception('Utilisateur introuvable.');
-            }
-    
-            // Créer un objet utilisateur pour l'envoi d'e-mail
-            $user = (object) $userData;
-    
-            Mail::to($user->email)->send(new AuthenticationEmail($user, $this->password));
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
-            throw $e; // Relancez l'exception pour que Laravel gère la file d'attente correctement
+        // Vérifiez et créez le dossier pour le PDF
+        $pdfDirectory = storage_path('app/public/qrcodes');
+        if (!file_exists($pdfDirectory)) {
+            mkdir($pdfDirectory, 0755, true);
         }
+    
+        // Génération du PDF
+        $dompdf = new Dompdf();
+        $html = "
+            <h1>Bienvenue, {$this->user->email}</h1>
+            <p>Votre compte a été créé.</p>
+            <p>Voici votre QR code :</p>
+            <img src='" . asset($this->qrCode) . "' alt='QR Code' />
+            <p>Votre mot de passe est : {$password}</p>
+        ";
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+    
+        // Sauvegarder le PDF dans un fichier
+        $pdfOutput = $dompdf->output();
+        $pdfPath = $pdfDirectory . '/' . uniqid() . '.pdf'; // Utilisez le chemin du dossier
+        file_put_contents($pdfPath, $pdfOutput);
+        
+        Log::info('Envoi d\'e-mail à : ' . $email);
+    
+        // Envoyer l'e-mail avec le PDF en pièce jointe
+        Mail::send([], [], function ($message) use ($email, $pdfPath) {
+            $message->to($email)
+                    ->subject('Authentification')
+                    ->attach($pdfPath)
+                    ->setBody('Veuillez trouver ci-joint votre QR code en format PDF.', 'text/html');
+        });
+        
+        Log::info('PDF généré avec succès.');
     }
     
-    
 }
+

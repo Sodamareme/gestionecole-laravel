@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('duree_acquisition');
             $table->string('type');
-            $table->foreignId('referentiel_id')->constrained('referentiels')->onDelete('cascade');
+            $table->unsignedBigInteger('referentiel_id');
             $table->timestamps();
         });
     }
