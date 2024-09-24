@@ -16,10 +16,12 @@ class CreatePromotionsTable extends Migration
             $table->integer('duree'); // Durée en jours ou en mois, selon votre besoin
             $table->enum('etat', ['Actif', 'Cloturé', 'Inactif']);
             $table->string('photo')->nullable();
-            $table->foreignId('referentiel_id')->constrained('referentiels')->onDelete('cascade');
+            $table->string('referentiel_id'); // Change this to string
+            $table->foreign('referentiel_id')->references('id')->on('referentiels')->onDelete('cascade');
             $table->timestamps();
         });
     }
+    
     public function down()
     {
         Schema::dropIfExists('promotions');

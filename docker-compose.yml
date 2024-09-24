@@ -5,31 +5,51 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: laravel-app
-    container_name: laravel_app
-    ports:
-      - "9000:9000"
+    container_name: app
     volumes:
       - .:/var/www
+      - /beyond-fashion-api-ts/GestionEcole/firebase.json:/home/sodadiop/Documents/beyond-fashion-api-ts/GestionEcole/firebase.json
+    networks:
+      - laravel
     environment:
-      - DB_CONNECTION=pgsql
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_DATABASE=projetecolelaravel
-      - DB_USERNAME=soda
-      - DB_PASSWORD=soda1616
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres  # Nom du service PostgreSQL
+      DB_PORT: 5432
+      DB_DATABASE: projetecolelaravel
+      DB_USERNAME: soda
+      DB_PASSWORD: soda1616
 
-  db:
-    image: postgres:latest
-    container_name: postgres_db
+  webserver:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    volumes:
+      - .:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     ports:
-      - "5432:5432"
+      - "8000:80"
+    depends_on:
+      - app
+    networks:
+      - laravel
+
+  postgres:  # Service PostgreSQL
+    image: postgres:latest
+    container_name: postgres
+    restart: always
     environment:
       POSTGRES_DB: projetecolelaravel
       POSTGRES_USER: soda
       POSTGRES_PASSWORD: soda1616
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge
 
 volumes:
-  pgdata:
+  postgres_data:  # Volume persistant pour les données PostgreSQL

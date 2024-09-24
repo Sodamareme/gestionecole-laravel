@@ -11,8 +11,11 @@ class CreatePromotionReferentielTable extends Migration
         Schema::create('promotion_referentiel', function (Blueprint $table) {
             $table->id();
             $table->foreignId('promotion_id')->constrained('promotions')->onDelete('cascade');
-            $table->string('referentiel_id'); // Changez le type si nécessaire
+            $table->unsignedBigInteger('referentiel_id'); // Change this to unsignedBigInteger
             $table->timestamps();
+
+            // Add foreign key constraint
+            $table->foreign('referentiel_id')->references('id')->on('referentiels')->onDelete('cascade');
         });
     }
 
@@ -21,4 +24,3 @@ class CreatePromotionReferentielTable extends Migration
         Schema::dropIfExists('promotion_referentiel');
     }
 }
-

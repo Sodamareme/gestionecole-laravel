@@ -26,7 +26,7 @@ Route::get('/oauth/authorize', [AuthorizationController::class, 'authorize']);
 Route::delete('/oauth/tokens/{token_id}', [AuthorizedAccessTokenController::class, 'destroy']);
 Route::post('/oauth/token/refresh', [TransientTokenController::class, 'refresh']);
 
-// Route::middleware(['auth:api', 'role:Admin'])->group(function () {
+//  Route::middleware(['auth:api', 'role:Admin'])->group(function () {
 Route::prefix('v1/users')->group(function () {
     // ajout users
     Route::post('/', [UserController::class, 'store'])->name('store');
@@ -35,7 +35,7 @@ Route::prefix('v1/users')->group(function () {
     // recherche user par id
     Route::get('/{id}', [UserController::class, 'getUserById'])->name('show');
    
-// });
+//  });
 });
 Route::post('v1/Auth/login', [UserController::class, 'login'])->name('login');
 
