@@ -5,7 +5,7 @@ FROM nginx:alpine
 # COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Exposer le port 80 pour le serveur Nginx
-EXPOSE 80
+EXPOSE 8080
 
 # Commande de démarrage Nginx
 CMD ["nginx", "-g", "daemon off;"]
