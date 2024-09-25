@@ -8,16 +8,23 @@ services:
     container_name: app
     volumes:
       - .:/var/www
-      - /beyond-fashion-api-ts/GestionEcole/firebase.json:/home/sodadiop/Documents/beyond-fashion-api-ts/GestionEcole/firebase.json
+      - ./firebase.json:/app/firebase.json
     networks:
       - laravel
     environment:
       DB_CONNECTION: pgsql
-      DB_HOST: postgres  # Nom du service PostgreSQL
+      DB_HOST: postgres
       DB_PORT: 5432
       DB_DATABASE: projetecolelaravel
       DB_USERNAME: soda
       DB_PASSWORD: soda1616
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   webserver:
     build:
@@ -34,7 +41,7 @@ services:
     networks:
       - laravel
 
-  postgres:  # Service PostgreSQL
+  postgres:
     image: postgres:latest
     container_name: postgres
     restart: always
@@ -52,4 +59,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:  # Volume persistant pour les données PostgreSQL
+  postgres_data:
