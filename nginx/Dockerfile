@@ -2,7 +2,7 @@
 FROM nginx:alpine
 
 # Copier le fichier de configuration personnalisé de Nginx
-COPY ./nginx/default.conf /etc/nginx/sites-available/default
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Exposer le port 80 pour le serveur Nginx
 EXPOSE 80 8080

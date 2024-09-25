@@ -31,8 +31,17 @@ services:
             MAIL_ENCRYPTION: "${MAIL_ENCRYPTION}"
             AUTH_DRIVER: "${AUTH_DRIVER:-default_driver}"
             APP_PORT: "${PORT:-9000}"
-        expose:
-            - "9000"
+
+    php-fpm:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: php_fpm
+        restart: unless-stopped
+        volumes:
+            - .:/var/www/html
+        networks:
+            - app-network
 
     pgsql:
         image: postgres:16
