@@ -1,59 +1,57 @@
 version: '3.8'
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: app
-    volumes:
-      - .:/var/www
-      - ./firebase.json:/app/firebase.json
-    networks:
-      - laravel
-    environment:
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: projetecolelaravel
-      DB_USERNAME: soda
-      DB_PASSWORD: soda1616
-    depends_on:
-      - postgres
-    expose:
-      - "9000"  # Expose PHP-FPM port
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: laravel_app
+        restart: unless-stopped
+        volumes:
+            - .:/var/www/html
+        networks:
+            - app-network
+        environment:
+            APP_ENV: local
+            APP_DEBUG: "true"
+            APP_KEY: "${APP_KEY}"
+            DB_CONNECTION: pgsql
+            DB_HOST: pgsql
+            DB_PORT: 5432
+            DB_DATABASE: "${DB_DATABASE}"
+            DB_USERNAME: "${DB_USERNAME}"
+            DB_PASSWORD: "${DB_PASSWORD}"
+            FIREBASE_CREDENTIALS: "${FIREBASE_CREDENTIALS}"
+            FIREBASE_DATABASE_URL: "${FIREBASE_DATABASE_URL}"
+            MAIL_MAILER: "${MAIL_MAILER}"
+            MAIL_HOST: "${MAIL_HOST}"
+            MAIL_PORT: "${MAIL_PORT}"
+            MAIL_USERNAME: "${MAIL_USERNAME}"
+            MAIL_PASSWORD: "${MAIL_PASSWORD}"
+            MAIL_ENCRYPTION: "${MAIL_ENCRYPTION}"
+            AUTH_DRIVER: "${AUTH_DRIVER:-default_driver}"
+            APP_PORT: "${PORT:-9000}"
+        expose:
+            - "9000"
 
-  webserver:  # Assurez-vous que le nom est bien "webserver"
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: nginx
-    volumes:
-      - .:/var/www
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    ports:
-      - "8080:80"
-    depends_on:
-      - app
-    networks:
-      - laravel
-
-  postgres:
-    image: postgres:latest
-    container_name: postgres
-    restart: always
-    environment:
-      POSTGRES_DB: projetecolelaravel
-      POSTGRES_USER: soda
-      POSTGRES_PASSWORD: soda1616
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - laravel
-
-networks:
-  laravel:
-    driver: bridge
+    pgsql:
+        image: postgres:13
+        container_name: pgsql
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: "${DB_DATABASE}"
+            POSTGRES_USER: "${DB_USERNAME}"
+            POSTGRES_PASSWORD: "${DB_PASSWORD}"
+        ports:
+            - "5434:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        networks:
+            - app-network
 
 volumes:
-  postgres_data:
+    pgdata:
+
+networks:
+    app-network:
+        driver: bridge

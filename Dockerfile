@@ -1,43 +1,44 @@
-# Utiliser une image PHP officielle avec FPM
+# Utiliser l'image PHP-FPM de base
 FROM php:8.3-fpm
 
-# Installer les dépendances nécessaires
+# Installer les dépendances nécessaires, y compris GD et zip
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    unzip \
     git \
     curl \
-    libonig-dev \
-    pkg-config \
-    libssl-dev \
-    libpq-dev  # Ajout de la bibliothèque PostgreSQL
+    libpq-dev \
+    libpng-dev \
+    libzip-dev \  
+    zip \
+    unzip \
+    && docker-php-ext-install pdo pdo_pgsql gd zip  # Installer GD et zip ici
 
-# Installer les extensions PHP requises pour Laravel
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd \
-    && docker-php-ext-install pdo pdo_pgsql zip  # Installation du driver pdo_pgsql
-
-# Installer Composer
+# Installer Composer globalement
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copier le projet Laravel dans le conteneur
-WORKDIR /var/www
+# Créer le répertoire de l'application
+RUN mkdir -p /var/www/html
+
+# Définir le répertoire de travail
+WORKDIR /var/www/html
+
+# Copier les fichiers composer et installer les dépendances
+COPY composer.json composer.lock ./
+RUN composer install --no-scripts --no-autoloader
+
+# Copier le reste des fichiers de l'application
 COPY . .
 
-# Installer les dépendances PHP
+# Installer les dépendances du projet avec autoload optimisé
 RUN composer install --optimize-autoloader --no-dev
 
-# Changer les permissions pour les fichiers Laravel (storage et cache)
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache
+# Définir les permissions pour les répertoires de stockage et de cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Exposer le port 9000 pour le serveur PHP-FPM
-EXPOSE 9000
-EXPOSE 8080
-# Lancer PHP-FPM
-CMD ["php-fpm"]
+# Copier la configuration Nginx
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Exposer les ports pour Nginx et PHP-FPM
+EXPOSE 80 9000
+
+# Démarrer PHP-FPM et Nginx
+CMD ["sh", "-c", "service nginx start && php-fpm"]
