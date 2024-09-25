@@ -52,9 +52,9 @@ services:
     image: postgres:16
     container_name: postgres
     environment:
-      POSTGRES_DB: penda
-      POSTGRES_USER: anta
-      POSTGRES_PASSWORD: Antagueye04
+      POSTGRES_DB: projetecolelaravel
+      POSTGRES_USER: soda
+      POSTGRES_PASSWORD: soda1616
     ports:
       - "5434:5432"
     networks:
