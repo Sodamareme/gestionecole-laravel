@@ -19,8 +19,7 @@ RUN apt-get update && apt-get install -y \
 # Installer les extensions PHP requises pour Laravel
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd \
-    && docker-php-ext-install pdo pdo_mysql zip \
-    && docker-php-ext-install pdo_pgsql  # Installation du driver pdo_pgsql
+    && docker-php-ext-install pdo pdo_pgsql zip  # Installation du driver pdo_pgsql
 
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
