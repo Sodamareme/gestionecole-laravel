@@ -22,10 +22,6 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql zip \
     && docker-php-ext-install pdo_pgsql  # Installation du driver pdo_pgsql
 
-# Installer l'extension MongoDB
-RUN pecl install mongodb \
-    && docker-php-ext-enable mongodb
-
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
