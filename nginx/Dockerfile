@@ -1,11 +1,8 @@
-# Utiliser l'image officielle de Nginx
-FROM nginx:alpine
+# Utiliser une image Nginx officielle
+FROM nginx:latest
 
-# Copier le fichier de configuration personnalisé de Nginx
-COPY ./nginx/default.conf /etc/nginx/sites-available/default
+# Copier le fichier de configuration Nginx personnalisé
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# Exposer le port 80 pour le serveur Nginx
-EXPOSE 80 8080
-
-# Commande de démarrage Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Exposer le port 80 pour Nginx
+EXPOSE 80

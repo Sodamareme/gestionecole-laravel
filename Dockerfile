@@ -1,44 +1,53 @@
-# Utiliser l'image PHP-FPM de base
+# Utiliser l'image PHP officielle avec extensions
 FROM php:8.3-fpm
 
-# Installer les dépendances nécessaires, y compris GD et zip
+# Installer des dépendances
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpq-dev \
+    build-essential \
     libpng-dev \
-    libzip-dev \  
+    libjpeg-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
     zip \
+    curl \
     unzip \
-    && docker-php-ext-install pdo pdo_pgsql gd zip  # Installer GD et zip ici
+    git \
+    libpq-dev \
+    libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip gd mbstring exif pcntl bcmath
 
-# Installer Composer globalement
+# Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Créer le répertoire de l'application
-RUN mkdir -p /var/www/html
-
 # Définir le répertoire de travail
-WORKDIR /var/www/html
+WORKDIR /var/www
 
-# Copier les fichiers composer et installer les dépendances
-COPY composer.json composer.lock ./
-RUN composer install --no-scripts --no-autoloader
-
-# Copier le reste des fichiers de l'application
+# Copier les fichiers du projet dans le conteneur
 COPY . .
 
-# Installer les dépendances du projet avec autoload optimisé
-RUN composer install --optimize-autoloader --no-dev
+# Configurer les permissions sur le répertoire de travail
+RUN chown -R www-data:www-data /var/www
 
-# Définir les permissions pour les répertoires de stockage et de cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Installer les dépendances du projet
+RUN composer install 
 
-# Copier la configuration Nginx
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+# Copier le fichier d'environnement et générer la clé
+COPY .env.example .env
+RUN php artisan key:generate
 
-# Exposer les ports pour Nginx et PHP-FPM
-EXPOSE 80 9000
+# Configurer les permissions sur le stockage et le cache
+RUN chown -R www-data:www-data /var/www/storage \
+    && chmod -R 775 /var/www/storage \
+    && chmod -R 775 /var/www/bootstrap/cache
 
-# Démarrer PHP-FPM et Nginx
-CMD ["sh", "-c", "service nginx start && php-fpm"]
+    
+
+# Exposer le port
+EXPOSE $PORT
+# Copie le script de démarrage
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+# Commande pour démarrer l'application
+CMD php artisan serve --host=0.0.0.0 --port=$PORT
