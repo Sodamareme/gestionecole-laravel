@@ -38,6 +38,6 @@ RUN chown -R www-data:www-data /var/www \
 
 # Exposer le port 9000 pour le serveur PHP-FPM
 EXPOSE 9000
-
+EXPOSE 8080
 # Lancer PHP-FPM
 CMD ["php-fpm"]
