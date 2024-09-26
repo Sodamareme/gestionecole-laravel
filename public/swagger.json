@@ -6,10 +6,10 @@
   },
   "servers": [
     {
-        "url": "http://localhost:8000/api",
-        "description": "Serveur Local"
+      "url": "http://localhost:8000/api",
+      "description": "Serveur Local"
     }
-],
+  ],
   "paths": {
     "/v1/users": {
       "post": {
@@ -174,7 +174,8 @@
                     "type": "string",
                     "description": "Statut du référentiel (Actif, Inactif, Archivé)"
                   }
-                }
+                },
+                "required": ["status"]
               }
             }
           }
@@ -381,7 +382,7 @@
     "/v1/apprenants/{id}": {
       "get": {
         "tags": ["Apprenants"],
-        "summary": "Obtenir un apprenant par ID",
+        "summary": "Rechercher un apprenant par ID",
         "operationId": "getLearnerById",
         "parameters": [
           {
@@ -431,11 +432,13 @@
             "description": "Apprenant mis à jour"
           }
         }
-      },
-      "delete": {
+      }
+    },
+    "/v1/apprenants/{id}/referentiels": {
+      "post": {
         "tags": ["Apprenants"],
-        "summary": "Supprimer un apprenant (soft delete)",
-        "operationId": "deleteLearner",
+        "summary": "Associer un apprenant à un référentiel",
+        "operationId": "associateLearnerToReferentiel",
         "parameters": [
           {
             "name": "id",
@@ -446,9 +449,26 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "referentielId": {
+                    "type": "integer",
+                    "description": "ID du référentiel"
+                  }
+                },
+                "required": ["referentielId"]
+              }
+            }
+          }
+        },
         "responses": {
-          "204": {
-            "description": "Apprenant supprimé"
+          "200": {
+            "description": "Apprenant associé au référentiel"
           }
         }
       }
@@ -459,45 +479,89 @@
       "User": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "email": { "type": "string" },
-          "password": { "type": "string" }
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
         },
         "required": ["name", "email", "password"]
       },
       "Login": {
         "type": "object",
         "properties": {
-          "email": { "type": "string" },
-          "password": { "type": "string" }
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
         },
         "required": ["email", "password"]
       },
       "Referentiel": {
         "type": "object",
         "properties": {
-          "title": { "type": "string" },
-          "description": { "type": "string" },
-          "status": { "type": "string" }
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Actif", "Inactif", "Archivé"]
+          }
         },
-        "required": ["title"]
+        "required": ["name", "status"]
       },
       "Promotion": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "discount": { "type": "number" }
+          "id": {
+            "type": "integer"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dateDebut": {
+            "type": "string",
+            "format": "date"
+          },
+          "dateFin": {
+            "type": "string",
+            "format": "date"
+          }
         },
-        "required": ["name", "discount"]
+        "required": ["description", "dateDebut", "dateFin"]
       },
       "Learner": {
         "type": "object",
         "properties": {
-          "firstName": { "type": "string" },
-          "lastName": { "type": "string" },
-          "email": { "type": "string" }
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "telephone": {
+            "type": "string"
+          }
         },
-        "required": ["firstName", "lastName", "email"]
+        "required": ["name", "email", "telephone"]
       }
     }
   }
