@@ -1,66 +1,27 @@
 <?php
+
 namespace App\Imports;
 
 use App\Models\Apprenant;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use App\Exports\UsersExport;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Jobs\SendAuthenticationEmailJob;
-class ApprenantsImport implements ToModel, WithHeadingRow, WithValidation
+
+class ApprenantsImport implements ToModel
 {
+    /**
+     * Chaque ligne du fichier Excel sera convertie en une instance du modèle Apprenant.
+     *
+     * @param array $row
+     *
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
     public function model(array $row)
     {
-        // Vérifier l'unicité
-        $existing = Apprenant::where('nom', $row['nom'])
-            ->where('prenom', $row['prenom'])
-            ->where('date_naissance', $row['date_naissance'])
-            ->where('sexe', $row['sexe'])
-            ->first();
-
-        if ($existing) {
-            return null; // Si l'apprenant existe déjà
-        }
-
-        // Créer un nouvel apprenant
-        $apprenant = new Apprenant([
-            'nom' => $row['nom'],
-            'prenom' => $row['prenom'],
-            'date_naissance' => $row['date_naissance'],
-            'sexe' => $row['sexe'],
-            // Autres champs...
+        return new Apprenant([
+            'user_id' => $row[0], // Supposons que la première colonne est l'ID utilisateur
+            'referentiel_id' => $row[1], // Deuxième colonne pour le référentiel
+            'promotion_id' => $row[2], // Troisième colonne pour la promotion
+            'email' => $row[3], // Quatrième colonne pour l'e-mail
+            'photo' => $row[4], // Cinquième colonne pour la photo
         ]);
-
-        // Générer matricule et code QR
-        $apprenant->matricule = $this->generateMatricule();
-        $apprenant->qr_code = $this->generateQRCode($apprenant);
-
-        $apprenant->save();
-
-        // Envoyer l'e-mail
-        SendAuthenticationEmailJob::dispatch($apprenant);
-
-        return $apprenant;
-    }
-
-    public function rules(): array
-    {
-        return [
-            'nom' => 'required|string',
-            'prenom' => 'required|string',
-            'date_naissance' => 'required|date',
-            'sexe' => 'required|string|in:male,female',
-        ];
-    }
-
-    protected function generateMatricule()
-    {
-        // Logique de génération de matricule
-    }
-
-    protected function generateQRCode($apprenant)
-    {
-        // Logique de génération de code QR
     }
 }

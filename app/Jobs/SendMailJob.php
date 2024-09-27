@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Jobs;
-
-use App\Mail\InscriptionApprenantMail; // Correct import
+// Assurez-vous d'importer Mail
+use App\Mail\AccountCreated; // Assurez-vous d'importer le Mailable
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,16 +14,28 @@ class SendMailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $mailData;
+    protected $email;
+    protected $qrCodeUrl;
 
-    public function __construct($mailData)
+    /**
+     * Create a new job instance.
+     *
+     * @param string $email
+     * @param string $qrCodeUrl
+     */
+    public function __construct($email, $qrCodeUrl)
     {
-        $this->mailData = $mailData;
+        $this->email = $email;
+        $this->qrCodeUrl = $qrCodeUrl;
     }
 
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
     public function handle()
     {
-        // Envoyer l'email à l'apprenant avec la classe correcte Mailable
-        Mail::to($this->mailData['email'])->send(new InscriptionApprenantMail($this->mailData));
+        Mail::to($this->email)->send(new AccountCreated($this->qrCodeUrl));
     }
 }

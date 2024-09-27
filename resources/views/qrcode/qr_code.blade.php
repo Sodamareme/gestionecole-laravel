@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carte de Fidélité</title>
+    <title>Votre QR Code</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -59,7 +59,7 @@
                 <p>Name: {{ $user->nom }}</p>
                 <p>Email: {{ $user->email }}</p>
                 <img src="{{ asset($user->photo) }}" alt="User Photo">
-                <img src="{{ $qr_code_url }}" alt="QR Code" class="qr-code">
+                <img src="{{ $qrCodeUrl }}" alt="QR Code" class="qr-code">
             </div>
             <div class="card-footer">
                 Merci pour votre fidélité !
@@ -68,3 +68,4 @@
     </div>
 </body>
 </html>
+

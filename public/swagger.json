@@ -6,46 +6,59 @@
   },
   "servers": [
     {
-        "url": "http://localhost:3000/api",
-        "description": "Serveur Local"
+      "url": "http://localhost:8000/api",
+      "description": "Serveur Local"
     }
-],
-  "paths": {
-    "/v1/users": {
-      "post": {
-        "tags": ["Users"],
-        "summary": "Ajout d'un utilisateur",
-        "operationId": "storeUser",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/User"
+  ],
+ "paths": {
+  "/v1/users": {
+    "post": {
+      "tags": ["Users"],
+      "summary": "Ajout d'un utilisateur",
+      "operationId": "storeUser",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "multipart/form-data": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "photo": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Sélectionnez une photo depuis votre machine"
+                },
+                "nom": {
+                  "type": "string",
+                  "description": "Nom de l'utilisateur"
+                },
+                "prenom": {
+                  "type": "string",
+                  "description": "Prénom de l'utilisateur"
+                },
+                "email": {
+                  "type": "string",
+                  "description": "Email de l'utilisateur"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "Mot de passe"
+                }
               }
             }
           }
-        },
-        "responses": {
-          "201": {
-            "description": "Utilisateur créé avec succès"
-          },
-          "400": {
-            "description": "Erreur dans les données"
-          }
         }
       },
-      "get": {
-        "tags": ["Users"],
-        "summary": "Lister les utilisateurs",
-        "operationId": "listUsers",
-        "responses": {
-          "200": {
-            "description": "Liste des utilisateurs"
-          }
+      "responses": {
+        "201": {
+          "description": "Utilisateur créé avec succès"
+        },
+        "400": {
+          "description": "Erreur dans les données"
         }
       }
-    },
+    }
+  },
     "/v1/users/{id}": {
       "get": {
         "tags": ["Users"],
@@ -57,7 +70,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -80,7 +93,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -136,7 +149,27 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Referentiel"
+                "type": "object",
+                "properties": {
+                  "photo": {
+                    "type": "file",
+                    "format": "binary",
+                    "description": "Sélectionnez une photo pour le référentiel"
+                  },
+                  "photot": {
+                    "type": "string",
+                    "description": "Nom du référentiel"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description du référentiel"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Statut du référentiel (Inactif)"
+                  }
+                },
+                "required": ["photo", "description"]
               }
             }
           }
@@ -174,7 +207,8 @@
                     "type": "string",
                     "description": "Statut du référentiel (Actif, Inactif, Archivé)"
                   }
-                }
+                },
+                "required": ["status"]
               }
             }
           }
@@ -209,7 +243,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -229,7 +263,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -259,7 +293,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -317,7 +351,7 @@
     "/v1/promotions/{id}": {
       "put": {
         "tags": ["Promotions"],
-        "summary": "Modifier une promotion",
+        "summary": "Mettre à jour une promotion",
         "operationId": "updatePromotion",
         "parameters": [
           {
@@ -325,7 +359,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -342,6 +376,82 @@
         "responses": {
           "200": {
             "description": "Promotion mise à jour"
+          }
+        }
+      }
+    },
+    "/v1/promotions/{id}/referentiels": {
+      "patch": {
+        "tags": ["Promotions"],
+        "summary": "Mettre à jour le référentiel de la promotion",
+        "operationId": "updateReferentielPromotion",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Référentiel de la promotion mis à jour"
+          }
+        }
+      }
+    },
+    "/v1/promotions/{id}/cloturer": {
+      "patch": {
+        "tags": ["Promotions"],
+        "summary": "Clôturer une promotion",
+        "operationId": "cloturerPromotion",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Promotion clôturée avec succès"
+          }
+        }
+      }
+    },
+    "/v1/promotions/{id}/apprenants": {
+      "post": {
+        "tags": ["Apprenants"],
+        "summary": "Inscription des apprenants à une promotion",
+        "operationId": "inscrireApprenant",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Apprenant"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Apprenant inscrit avec succès"
           }
         }
       }
@@ -381,7 +491,7 @@
     "/v1/apprenants/{id}": {
       "get": {
         "tags": ["Apprenants"],
-        "summary": "Obtenir un apprenant par ID",
+        "summary": "Rechercher un apprenant par ID",
         "operationId": "getLearnerById",
         "parameters": [
           {
@@ -389,7 +499,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -412,7 +522,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -431,24 +541,68 @@
             "description": "Apprenant mis à jour"
           }
         }
-      },
-      "delete": {
+      }
+    },
+    "/v1/apprenants/{id}/referentiels": {
+      "post": {
         "tags": ["Apprenants"],
-        "summary": "Supprimer un apprenant (soft delete)",
-        "operationId": "deleteLearner",
+        "summary": "Associer un apprenant à un référentiel",
+        "operationId": "associateLearnerToReferentiel",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "referentielId": {
+                    "type": "string",
+                    "description": "ID du référentiel"
+                  }
+                },
+                "required": ["referentielId"]
+              }
+            }
+          }
+        },
         "responses": {
-          "204": {
-            "description": "Apprenant supprimé"
+          "200": {
+            "description": "Apprenant associé au référentiel"
+          }
+        }
+      }
+    },
+    "/v1/apprenants/import": {
+      "post": {
+        "tags": ["Apprenants"],
+        "summary": "Importer des apprenants via fichier CSV",
+        "operationId": "importApprenants",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprenantsImport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Apprenants importés avec succès"
+          },
+          "400": {
+            "description": "Erreur dans le fichier d'import"
           }
         }
       }
@@ -459,45 +613,99 @@
       "User": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "email": { "type": "string" },
-          "password": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
         },
         "required": ["name", "email", "password"]
       },
       "Login": {
         "type": "object",
         "properties": {
-          "email": { "type": "string" },
-          "password": { "type": "string" }
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
         },
         "required": ["email", "password"]
       },
       "Referentiel": {
         "type": "object",
         "properties": {
-          "title": { "type": "string" },
-          "description": { "type": "string" },
-          "status": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Actif", "Inactif", "Archivé"]
+          }
         },
-        "required": ["title"]
+        "required": ["name", "status"]
       },
       "Promotion": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "discount": { "type": "number" }
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dateDebut": {
+            "type": "string",
+            "format": "date"
+          },
+          "dateFin": {
+            "type": "string",
+            "format": "date"
+          }
         },
-        "required": ["name", "discount"]
+        "required": ["description", "dateDebut", "dateFin"]
       },
       "Learner": {
         "type": "object",
         "properties": {
-          "firstName": { "type": "string" },
-          "lastName": { "type": "string" },
-          "email": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "telephone": {
+            "type": "string"
+          }
         },
-        "required": ["firstName", "lastName", "email"]
+        "required": ["name", "email", "telephone"]
+      },
+      "ApprenantsImport": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "CSV file containing the list of learners"
+          }
+        }
       }
     }
   }

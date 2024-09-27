@@ -90,6 +90,7 @@ class UserController extends Controller
     {
         // Validation des données d'entrée
         $request->validate([
+            'id' => 'required|string',
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'email' => 'required|email|unique:users,email',
@@ -127,7 +128,7 @@ class UserController extends Controller
         // Préparez les données de l'utilisateur
         $userData = $request->only(['nom', 'prenom', 'email', 'role', 'telephone', 'statut', 'fonction']);
         $userData['photo'] = $photoPath;
-        $userData['role'] = $request->role;
+    
         // Créez l'utilisateur dans Firebase Authentication
         try {
             $createdUser = $this->firebaseAuth->createUser([
@@ -136,21 +137,25 @@ class UserController extends Controller
                 'displayName' => $request->prenom . ' ' . $request->nom,
                 'photoURL' => $userData['photo'], // URL de la photo
             ]);
-            
+    
             // Enregistrez les données de l'utilisateur dans votre base de données Firebase
             $userData['firebase_uid'] = $createdUser->uid; // Enregistrez l'UID pour référence future
             $firebase = app('firebase.database');
             $reference = $firebase->getReference('users');
-            $newUser = $reference->push($userData);
+            $reference->push($userData);
     
             // Appel à la méthode pour générer le fichier Excel
             $this->exportExcel();
     
             return response()->json(['user' => $userData, 'firebase_uid' => $createdUser->uid], 201);
+        } catch (\Kreait\Firebase\Exception\Auth\EmailExists $e) {
+            // Gérer le cas où l'e-mail existe déjà
+            return response()->json(['message' => 'L\'adresse e-mail est déjà utilisée par un autre compte.'], 409);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Échec de la création de l\'utilisateur : ' . $e->getMessage()], 500);
         }
     }
+    
     
     
     public function exportExcel()

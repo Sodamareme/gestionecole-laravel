@@ -7,6 +7,7 @@ use App\Services\ReferentielService;
 use Illuminate\Support\Facades\Log;
 use App\Models\Competence;
 use App\Models\Module;
+use Illuminate\Support\Facades\Validator;
 class ReferentielController extends Controller
 {
     protected $referentielService;
@@ -80,12 +81,72 @@ class ReferentielController extends Controller
     }
     public function getActiveReferentiels()
     {
-        // Récupération des référentiels avec le statut "Actif"
+        // Get referentiels with status "Actif"
         $activeReferentiels = $this->referentielService->getReferentielsByStatus('Actif');
 
-        // Retourner la liste des référentiels actifs en réponse
+        // Return the list of active referentiels
         return response()->json($activeReferentiels, 200);
     }
+   
+    public function update(Request $request, $id)
+    {
+        // Retrieve the referential by ID
+        $referentiel = $this->referentielService->findById($id);
+
+        if (!$referentiel) {
+            return response()->json(['message' => 'Referential not found'], 404);
+        }
+
+        // Decode the JSON data
+        $jsonData = json_decode($request->input('data'), true);
+
+        if (is_null($jsonData)) {
+            return response()->json(['message' => 'Invalid JSON data'], 400);
+        }
+
+        // Handle photo upload
+        $photoPath = $referentiel['photo'];
+        if ($request->hasFile('photo')) {
+            $photoPath = $this->uploadPhoto($request);
+        }
+
+        // Merge JSON data and photo into the validation array
+        $validatedData = array_merge($jsonData, [
+            'photo' => $photoPath,
+            'statut' => $jsonData['statut'] ?? $referentiel['statut'],
+        ]);
+
+        // Validate the data
+        $validator = Validator::make($validatedData, [
+            'code' => 'required|unique:referentiels,code,' . $referentiel['id'],
+            'libelle' => 'required|unique:referentiels,libelle,' . $referentiel['id'],
+            'description' => 'nullable|string',
+            'photo' => 'nullable|string',
+            'statut' => 'nullable|string',
+            'competences' => 'nullable|array',
+            'competences.*.nom' => 'required|string',
+            'competences.*.description' => 'required|string',
+            'competences.*.duree_acquisition' => 'required|integer',
+            'competences.*.type' => 'required|in:Back-end,Front-end',
+            'competences.*.modules' => 'nullable|array',
+            'competences.*.modules.*.nom' => 'required|string',
+            'competences.*.modules.*.description' => 'required|string',
+            'competences.*.modules.*.duree_acquisition' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        // Pass validated data to the service for updating
+        $updatedReferentiel = $this->referentielService->updateReferentiel($referentiel, $validatedData);
+
+        return response()->json($updatedReferentiel, 200);
+    }
+    
+    
+    
+    
     public function getReferentielsByStatus(Request $request)
 {
      // Récupérer le statut depuis le corps de la requête

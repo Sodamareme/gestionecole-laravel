@@ -218,6 +218,7 @@ return [
         // 'ExampleClass' => App\Example\ExampleClass::class,
         'Firebase' => Kreait\Laravel\Firebase\Facades\Firebase::class,
         'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
+        
     ])->toArray(),
 
 ];
