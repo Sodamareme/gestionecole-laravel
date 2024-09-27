@@ -73,7 +73,7 @@ return [
             'firestore' => [
 
                 /*
-                 * If you want to access a Firestore database other than the default database,
+                 * If you want to accfirebase.credentialsess a Firestore database other than the default database,
                  * enter its name here.
                  *
                  * By default, the Firestore client will connect to the `(default)` database.

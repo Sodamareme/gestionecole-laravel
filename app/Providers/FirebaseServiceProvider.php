@@ -10,6 +10,7 @@ class FirebaseServiceProvider extends ServiceProvider
 {
     public function register()
     {
+        
         $this->app->singleton(Database::class, function () {
             $factory = (new Factory)
                 ->withServiceAccount(config('firebase.credentials'))

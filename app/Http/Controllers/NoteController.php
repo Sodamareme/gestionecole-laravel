@@ -17,7 +17,6 @@ class NoteController extends Controller
                 'notes.*.note' => 'required|numeric', // Validation de la note
             
         ]);
-
         // Rechercher le module par son nom
         $module = Module::where('nom', $nom)->first();
 
